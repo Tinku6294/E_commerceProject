@@ -1,13 +1,20 @@
 package com.E_commerceProject.E_commerceProject.utils;
-
-import org.springframework.stereotype.Component;
-import io.jsonwebtoken.Jwts;
-import javax.xml.crypto.Data;
 import java.security.Key;
-import java.security.Signature;
+import java.util.Date;
+
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.SigningKeyResolver;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
+//import lombok.Data;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Component;
+
+import javax.xml.crypto.Data;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.function.Function;
 
 @Component
@@ -19,17 +26,17 @@ public class JwtUtil {
         return createToken(claims, userName);
 
     }
-    private String createToken(Map<String,Object> claims, String userName){
+    private String createToken(Map<String, Object> claims, String userName){
      return Jwts.builder()
              .setClaims(claims)
-             .setSubject(username)
-             .setIssuedAt(new Data(System.currentTimeMillis()))
-             .setExpiration(new Data(System.currentTimeMillis()+10000*60*30))
-             signWith(getSignkey(), SignatureAlgorithm.HS256).compact();
+             .setSubject(userName)
+             .setIssuedAt(new Date(System.currentTimeMillis()))
+             .setExpiration(new Date(System.currentTimeMillis()+10000*60*30))
+             .signWith(getSignKey(), SignatureAlgorithm.HS256).compact();
     }
-    private Key getSignkey()
+    private Key getSignKey()
     {
-        byte[] keybytes=Decoders.BASE64.decode(SECRET);
+        byte[] keybytes= Decoders.BASE64.decode(SECRET);
         return Keys.hmacShaKeyFor(keybytes);
     }
     public String extractUsername(String token){
@@ -40,16 +47,16 @@ public class JwtUtil {
         return claimsResolver.apply(claims);
     }
     private Claims extractAllClaims(String token){
-        return Jwts.parserBuilder().setSigninKey(getSignkey()).build().parseClaimsJws(token).getBody();
+        return Jwts.parser().setSigningKey(getSignKey()).build().parseClaimsJws(token).getBody();
     }
     private Boolean isTokenExpired(String token){
-        return extractExpiration(token).before(new Data());
+        return extractExpiration(token).before(new Date());
     }
      public Date extractExpiration(String token){
         return extractClaim(token,Claims::getExpiration);
      }
-     public Boolean validateToken(String token,UserDetails userDetails){
+     public Boolean validateToken(String token, UserDetails userDetails){
         final String username =extractUsername(token);
-        return (username.equals(userDetails.getusername())&& !isTokenExpired(token));
+        return (username.equals(userDetails.getUsername())&& !isTokenExpired(token));
      }
 }

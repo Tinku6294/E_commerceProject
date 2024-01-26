@@ -1,8 +1,9 @@
 package com.E_commerceProject.E_commerceProject.services.jwt;
 
+import com.E_commerceProject.E_commerceProject.entity.User;
 import com.E_commerceProject.E_commerceProject.repsitory.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.User;
+//import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
